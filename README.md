@@ -2,11 +2,11 @@
 
 ## Main Tasks
 
-* The Story
-* The Poster
-* Game Logic
-* Main Menu
-* Sprites ( Background , Enemies , Player Model and Assets )
+* The Story - Sirbu
+* The Poster - Sirbu
+* Game Logic - Tudor
+* Main Menu - David
+* Sprites ( Background , Enemies , Player Model and Assets ) - Sirbu
 
 ## Secondary Tasks
 
