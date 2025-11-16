@@ -13,8 +13,7 @@ Spike::Spike(glm::vec3 pos, float w, float h, glm::vec4 col)
 void Spike::initMesh() {
     if (s_spikeMeshInitialized) return;
 
-    // Triangle vertices (object space):
-    // bottom-left, bottom-right, top-center (apex)
+    
     const GLfloat vertices[] = {
         -0.75f, 0.0f, 0.0f,  
          -0.5f, 0.5f, 0.0f,  
@@ -50,7 +49,6 @@ void Spike::initMesh() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // Unbind VAO to avoid accidental modifications
     glBindVertexArray(0);
 
     s_spikeMeshInitialized = true;
@@ -70,23 +68,22 @@ void Spike::draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) const {
     // Ensure mesh exists (safe: will initialize only once)
     if (!s_spikeMeshInitialized) initMesh();
 
-    // Save currently bound VAO so we can restore it afterwards
+    
     GLint prevVao = 0;
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &prevVao);
 
-    // Build transform: translate to position, scale to desired width/height
     glm::mat4 transform = glm::mat4(1.0f);
     transform = glm::translate(transform, position);
     transform = glm::scale(transform, glm::vec3(width, height, 1.0f));
     transform = view * transform;
 
-    // Bind spike mesh and draw triangle
+    
     glBindVertexArray(s_spikeVao);
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
     glUniform4fv(colorLoc, 1, glm::value_ptr(color));
     glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 
-    // Restore previous VAO binding (important so other draws keep using the expected VAO)
+    
     glBindVertexArray((GLuint)prevVao);
 }
 
