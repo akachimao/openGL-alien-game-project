@@ -1,10 +1,16 @@
 #include "Player.h"
 
 Player::Player(glm::vec3 pos, float sz)
-    : position(pos), size(sz), speed(0.01f), jumpForce(0.04f),
-    gravity(-0.001f), isGrounded(false),
-    velocity(0.0f, 0.0f, 0.0f),
-    color(0.5f, 0.0f, 0.5f, 1.0f) {
+    : position(pos),
+      velocity(0.0f, 0.0f, 0.0f),
+      size(sz),
+      speed(0.01f),           
+      jumpForce(0.04f),      
+      gravity(-0.001f),      
+      isGrounded(false),     
+      color(0.5f, 0.0f, 0.5f, 1.0f) 
+{
+    
 }
 
 void Player::handleInput(GLFWwindow* window) {

@@ -20,12 +20,12 @@ public:
     glm::vec4 color;
     int direction; // 1 = right, -1 = left
 
-    // pauseTimer: short horizontal stop when bumping into a spike
+ 
     float pauseTimer;
 
     Enemy(glm::vec3 pos, float sz = 0.08f);
 
-    // Now accepts spikes so enemy can react to them
+   
     void update(const std::vector<Platform>& platforms, const std::vector<Spike>& spikes);
 
     void draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) const;

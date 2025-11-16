@@ -7,7 +7,7 @@ Enemy::Enemy(glm::vec3 pos, float sz)
     : position(pos),
       velocity(0.0f, 0.0f, 0.0f),
       size(sz),
-      speed(0.1f),
+      speed(0.2f),
       gravity(9.81f),
       isGrounded(false),
       color(1.0f, 0.5f, 0.0f, 1.0f),
@@ -64,7 +64,7 @@ void Enemy::update(const std::vector<Platform>& platforms, const std::vector<Spi
         }
     }
 
-    // Spike collision: if enemy touches a spike, reverse direction, pause briefly and move slightly away
+    // spike collision
     for (const Spike& spike : spikes) {
         bool horizOverlap = getRight() > spike.getLeft() &&
                             getLeft() < spike.getRight();
@@ -72,22 +72,22 @@ void Enemy::update(const std::vector<Platform>& platforms, const std::vector<Spi
                            getTop() >= spike.getBottom();
 
         if (horizOverlap && vertOverlap) {
-            // Reverse direction
+            // reverse direction
             direction = -direction;
 
-            // Small nudge to avoid sticking inside spike
-            const float nudge = (size * 0.5f) + 0.02f;
+            // small nudge to avoid sticking inside spike
+            const float nudge = (size * 0.1f) ;
             position.x += direction * nudge;
 
-            // Briefly stop horizontal movement (stun) so it "stops and turns"
-            pauseTimer = 0.15f; // 150 ms
+            // briefly stop horizontal movement (stun) so it "stops and turns"
+            pauseTimer = 0.15f; 
 
-            // Don't process more spikes this frame
+            
             break;
         }
     }
 
-    // Turn around at platform edges (only if not currently paused)
+    // turn around at platform edges (only if not currently paused)
     if (pauseTimer <= 0.0f) {
         checkPlatformBoundaries(platforms);
     }
@@ -123,7 +123,7 @@ void Enemy::draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) const {
 
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
     glUniform4fv(colorLoc, 1, glm::value_ptr(color));
-    // Uses the game's square VAO (bound before calling draw)
+	// use the game's global VAO to draw the enemy
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 

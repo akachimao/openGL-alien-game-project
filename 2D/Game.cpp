@@ -138,8 +138,8 @@ void Game::createPlatforms() {
 }
 
 void Game::createSpikes() {
-    spikes.reserve(8);
-
+    spikes.reserve(9);
+	spikes.push_back(Spike(glm::vec3(-0.2f, 0.950f - player.size / 2, 0.0f), 0.1f, 0.1f));
     spikes.push_back(Spike(glm::vec3(1.0f, -0.35f-player.size/2, 0.0f), 0.1f, 0.1f));//w//h
     spikes.push_back(Spike(glm::vec3(1.6f, 0.05-player.size/2, 0.0f), 0.1f, 0.1f));
     spikes.push_back(Spike(glm::vec3(1.7f, 0.05-player.size/2, 0.0f), 0.1f, 0.1f));
@@ -154,9 +154,9 @@ void Game::createEnemies() {
     enemies.reserve(3); 
 
     
-    enemies.push_back(Enemy(glm::vec3(2.78f, 0.45f-player.size/2, 0.0f)));
-    enemies.push_back(Enemy(glm::vec3(0.0f, 0.950f-player.size/2, 0.0f)));
-    enemies.push_back(Enemy(glm::vec3( 6.2f, 0.350f-player.size/2, 0.0f)));
+    enemies.push_back(Enemy(glm::vec3(2.78f, 0.45f-player.size/2, 0.0f),0.08f));
+    enemies.push_back(Enemy(glm::vec3(0.0f, 0.950f-player.size/2, 0.0f),0.08f));
+    enemies.push_back(Enemy(glm::vec3( 6.2f, 0.350f-player.size/2, 0.0f),0.08f));
     
     
     enemies[1].direction = -1;
@@ -172,9 +172,10 @@ void Game::checkCollisions() {
 
    
     for (Platform& platform : platforms) {
-        
+        //check is player is inside platform on x axis
         bool overlapX = player.getRight() > platform.getLeft() && player.getLeft() < platform.getRight();
-        bool overlapY = player.getTop() > platform.getBottom() && player.getBottom() < platform.getTop();
+        //check is player is inside platform on y axis
+		bool overlapY = player.getTop() > platform.getBottom() && player.getBottom() < platform.getTop();
 
         if (!overlapX || !overlapY) continue;
 
@@ -182,21 +183,21 @@ void Game::checkCollisions() {
         float penX = std::min(player.getRight(), platform.getRight()) - std::max(player.getLeft(), platform.getLeft());
         float penY = std::min(player.getTop(), platform.getTop()) - std::max(player.getBottom(), platform.getBottom());
 
-        // Decide resolution axis by smallest penetration
+        // decide resolution axis by smallest penetration
         if (penX < penY) {
-            
+			// resolve on x axis            
             if (player.position.x < platform.position.x) player.position.x -= penX;
             else player.position.x += penX;
             player.velocity.x = 0.0f;
         } else {
-
-            const float eps = 0.01f;
+			//resolve on y axis
+            
             const float minDownVelocity = -0.05f; 
 
-            bool wasAbove = prevPlayerBottom >= platform.getTop() - eps;
+           /* bool wasAbove = prevPlayerBottom >= platform.getTop();*/
             bool isFallingEnough = player.velocity.y <= minDownVelocity;
 
-            if (wasAbove || isFallingEnough) {
+            if (/*wasAbove ||*/ isFallingEnough) {
                 // land on top
                 player.position.y = platform.getTop() + player.size / 2.0f;
                 player.velocity.y = 0.0f;
@@ -208,7 +209,7 @@ void Game::checkCollisions() {
                     player.position.y = platform.getBottom() - player.size / 2.0f;
                 } else {
                   
-                    player.position.y = platform.getTop() + player.size / 2.0f + eps;
+                    player.position.y = platform.getTop() + player.size / 2.0f;
                     player.isGrounded = true;
                     player.velocity.y = 0.0f;
                 }
@@ -224,6 +225,7 @@ void Game::checkCollisions() {
             player.getTop() >= spike.getBottom();
 
         if (horizontalOverlap && verticalOverlap) {
+			//lose condition
             player.velocity = glm::vec3(0.0f);
             player.speed = 0.0f;
             player.jumpForce = 0.0f;
@@ -240,6 +242,7 @@ void Game::checkCollisions() {
             player.getTop() >= enemy.getBottom();
 
         if (horizontalOverlap && verticalOverlap) {
+			//lose condition
             player.velocity = glm::vec3(0.0f);
             player.speed = 0.0f;
             player.jumpForce = 0.0f;
@@ -256,7 +259,7 @@ void Game::checkCollisions() {
             player.getTop() >= rocket.getBottom();
 
         if (horizontalOverlap && verticalOverlap) {
-            // Player reaches rocket
+            // win condition
             player.velocity = glm::vec3(0.0f);
             player.speed = 0.0f;
             player.jumpForce = 0.0f;
@@ -264,7 +267,7 @@ void Game::checkCollisions() {
             break;
         }
     }
-
+    
     // lose condition 
     const float loseY = -1.0f;
     if (player.position.y < loseY) {
@@ -277,7 +280,7 @@ void Game::checkCollisions() {
 
 void Game::updateCamera() {
     cameraPos.x += (player.position.x - cameraPos.x) * cameraSmooth;
-    
+	//camera should not go below 0.30f
     float targetY = std::max(player.position.y, 0.30f);
     cameraPos.y += (targetY - cameraPos.y) * cameraSmooth;
 }
@@ -289,80 +292,68 @@ void Game::render() {
 
     glm::mat4 view = glm::translate(glm::mat4(1.0f), -cameraPos);
 
-    // Draw all platforms
+    // draw all platforms
     for (Platform& platform : platforms) {
         platform.draw(transformLoc, colorLoc, view);
     }
 
-    // Draw spikes
+    // draw spikes
     for (const Spike& spike : spikes) {
         spike.draw(transformLoc, colorLoc, view);
     }
 
-    // Draw enemies
+    // draw enemies
     for (const Enemy& enemy : enemies) {
         enemy.draw(transformLoc, colorLoc, view);
     }
 
-    // Draw rockets
+    // draw rockets
     for (const Rocket& rocket : rockets) {
         rocket.draw(transformLoc, colorLoc, view);
     }
 
-    // Draw player
+    // draw player
     player.draw(transformLoc, colorLoc, view);
 
-    glBindVertexArray(0);  // Unbind VAO after rendering
+    glBindVertexArray(0);  // unbind VAO after rendering
 }
 
 void Game::run() {
     const double targetFPS = 60.0;
-    const double targetFrameTime = 0.4 / targetFPS; // seconds per frame
+    const double targetFrameTime = 1.0 / targetFPS;
 
-    double lastPrintTime = 0.0;
-    const double printInterval = 0.25; // seconds
+    double lastTime = glfwGetTime();
+    double accumulator = 0.0;
 
     while (!glfwWindowShouldClose(window)) {
-        double frameStart = glfwGetTime();
-
-       
-        prevPlayerBottom = player.getBottom();
-
-        player.handleInput(window);
-        player.update();
-
-        // Update all enemies (now expects spikes too)
-        for (Enemy& enemy : enemies) {
-            enemy.update(platforms, spikes);
-        }
-
-        checkCollisions();
-        updateCamera();
-        render();
-
-        // Print player coordinates 
         double now = glfwGetTime();
-        if (now - lastPrintTime >= printInterval) {
-            lastPrintTime = now;
-            printf("Player position: x=%.3f, y=%.3f\n", player.position.x, player.position.y);
-            if (!platforms.empty()) printf("platform 0 position: x=%.3f, y=%.3f\n", platforms[0].position.x, platforms[0].position.y);
+        double delta = now - lastTime;
+        lastTime = now;
+
+        accumulator += delta;
+
+
+        while (accumulator >= targetFrameTime) {
+            /*prevPlayerBottom = player.getBottom();*/
+            player.handleInput(window);
+            player.update();
+
+            for (Enemy& enemy : enemies)
+                enemy.update(platforms, spikes);
+
+            checkCollisions();
+            updateCamera();
+
+            accumulator -= targetFrameTime;
         }
+
+        render();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-
-        // --- Frame cap to targetFPS using glfwGetTime and sleeping ---
-        double frameEnd = glfwGetTime();
-        double frameDuration = frameEnd - frameStart;
-        double timeToSleep = targetFrameTime - frameDuration;
-        if (timeToSleep > 0.0) {
-            // convert to microseconds to preserve precision
-            long long sleepUs = static_cast<long long>(timeToSleep * 1e6);
-            std::this_thread::sleep_for(std::chrono::microseconds(sleepUs));
-        }
-        
     }
 }
+
 
 void Game::cleanup() {
     glDeleteBuffers(1, &vbo);
@@ -370,8 +361,10 @@ void Game::cleanup() {
     glDeleteVertexArrays(1, &vao);
     glDeleteProgram(programID);
 
-    
+
     Spike::cleanupMesh();
     Rocket::cleanupMesh();
+
+    
     glfwTerminate();
 }

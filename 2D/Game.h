@@ -29,7 +29,7 @@ private:
     float cameraSmooth;
 
     // Track player's previous bottom Y so collisions can use previous state
-    float prevPlayerBottom = 0.0f;
+    /*float prevPlayerBottom = 0.0f;*/
 
     void initWindow();
     void initOpenGL();

@@ -30,4 +30,5 @@ public:
     float getRight() const;
     float getBottom() const;
     float getTop() const;
+
 };

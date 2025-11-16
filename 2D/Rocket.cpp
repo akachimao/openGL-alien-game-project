@@ -17,18 +17,18 @@ void Rocket::initMesh() {
 
     
     const GLfloat vertices[] = {
-        -0.25f, -0.5f, 0.0f,  // v0
-         0.25f, -0.5f, 0.0f,  // v1
-        -0.25f,  0.0f, 0.0f,  // v2
-         0.25f,  0.0f, 0.0f,  // v3
-         0.00f,  0.5f, 0.0f   // v4 (nose)
+        -0.25f, -0.5f, 0.0f, 
+         0.25f, -0.5f, 0.0f,  
+        -0.25f,  0.0f, 0.0f,  
+         0.25f,  0.0f, 0.0f,  
+         0.00f,  0.5f, 0.0f   
     };
 
    
     const GLuint indices[] = {
-        0, 2, 1,  // body left
-        1, 2, 3,  // body right
-        2, 4, 3   // nose
+        0, 2, 1,  
+        1, 2, 3,  
+        2, 4, 3   
     };
 
     glGenVertexArrays(1, &s_rocketVao);
