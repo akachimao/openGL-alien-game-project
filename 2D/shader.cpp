@@ -12,7 +12,7 @@
 
 using namespace std;
 
-// Include GLEW
+
 #include "dependente\glew\glew.h"
 
 namespace ShaderUtils
@@ -31,14 +31,14 @@ namespace ShaderUtils
 
 	GLuint compileShader(const char* shaderFilePath, GLenum shaderType)
 	{
-		// Create the shader as OpenGL ID
+	
 		GLuint shaderId = glCreateShader(shaderType);
 
-		// Read its code into a string
+	
 		std::string shaderCode;
 		readShaderFile(shaderFilePath, shaderCode);
 
-		// Try to compile it
+		
 		printf("Compiling shader : %s\n", shaderFilePath);
 		char const* sourcePointer = shaderCode.c_str();
 		glShaderSource(shaderId, 1, &sourcePointer, NULL);
@@ -50,7 +50,7 @@ namespace ShaderUtils
 		int infoLogLength = 0;
 		glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &infoLogLength);
 
-		// If any errors exist, we will beautify the GLSL error output string
+		
 		if (infoLogLength > 0)
 		{
 			std::vector<char> shaderErrorMessage(infoLogLength + 1);
@@ -61,14 +61,14 @@ namespace ShaderUtils
 			std::string glslErrorPrefix = "ERROR: ";
 
 
-			// Remove all glsl error prefixes first
+		
 			size_t pos = 0;
 			while ((pos = log.find(glslErrorPrefix, pos)) != std::string::npos)
 			{
 				log.erase(pos, glslErrorPrefix.length());
 			}
 
-			// Split log into lines
+		
 			std::vector<std::string> lines;
 			size_t start = 0;
 			size_t end = log.find('\n');
@@ -84,13 +84,13 @@ namespace ShaderUtils
 				lines.push_back(log.substr(start));
 			}
 
-			// Prepare the reformatted log
+			
 			std::string formattedLog = emptySpaces + "^^^\n" + emptySpaces + "Compilation errors: \n";
 			for (size_t i = 0; i < lines.size(); ++i)
 			{
 				std::string& line = lines[i];
 
-				// Check if it is an error line
+				
 				size_t colon1 = line.find(':');
 				size_t colon2 = line.find(':', colon1 + 1);
 				if (colon1 != std::string::npos && colon2 != std::string::npos) {
@@ -98,7 +98,7 @@ namespace ShaderUtils
 					std::string msg = line.substr(colon2 + 1);
 					formattedLog += emptySpaces + "- line " + linenum + ":" + msg + "\n";
 				}
-				// Or the last line
+				
 				else if (line.find("compilation errors") != std::string::npos)
 				{
 					formattedLog += emptySpaces + "Total of " + line + "\n\n";
@@ -138,7 +138,7 @@ namespace ShaderUtils
 
 	GLuint linkProgram(GLuint vertexShaderId, GLuint fragmentShaderId)
 	{
-		// Early exit if previous steps failed
+	
 		if (!vertexShaderId || !fragmentShaderId)
 		{
 			return 0;
@@ -171,7 +171,7 @@ namespace ShaderUtils
 
 		printf("program linked successfully.\n\n");
 
-		// Clean all unneeded things
+		
 		cleanup(programId, vertexShaderId, fragmentShaderId);
 
 		return programId;
@@ -181,11 +181,11 @@ namespace ShaderUtils
 [[nodiscard]]
 GLuint LoadShaders(const char* vertexFilePath, const char* fragmentFilePath)
 {
-	// Read and compile the shaders
+	
 	GLuint vertexShaderId = ShaderUtils::compileShader(vertexFilePath, GL_VERTEX_SHADER);
 	GLuint fragmentShaderId = ShaderUtils::compileShader(fragmentFilePath, GL_FRAGMENT_SHADER);
 
-	// Link the program
+
 	GLuint programId = ShaderUtils::linkProgram(vertexShaderId, fragmentShaderId);
 
 	return programId;
