@@ -10,7 +10,7 @@ Enemy::Enemy(glm::vec3 pos, float sz)
     speed(0.2f),
     gravity(9.81f),
     isGrounded(false),
-    color(0.2f, 0.8f, 0.2f, 1.0f),  // Bright green for slime
+    color(0.2f, 0.8f, 0.2f, 1.0f), 
     direction(1),
     pauseTimer(0.0f) {
 }
@@ -47,7 +47,7 @@ void Enemy::update(const std::vector<Platform>& platforms, const std::vector<Spi
             getLeft() < platform.getRight();
 
         if (horizontalOverlap) {
-            // Landing from above
+            // landing from above
             if (velocity.y <= 0.0f &&
                 getBottom() <= platform.getTop() &&
                 getBottom() >= platform.getBottom()) {
@@ -55,7 +55,7 @@ void Enemy::update(const std::vector<Platform>& platforms, const std::vector<Spi
                 velocity.y = 0.0f;
                 isGrounded = true;
             }
-            // Hitting bottom of platform
+            // hitting bottom of platform
             else if (velocity.y > 0.0f &&
                 getTop() >= platform.getBottom() &&
                 getTop() <= platform.getTop()) {
