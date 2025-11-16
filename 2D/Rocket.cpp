@@ -106,3 +106,21 @@ float Rocket::getLeft() const { return position.x - width / 2.0f; }
 float Rocket::getRight() const { return position.x + width / 2.0f; }
 float Rocket::getTop() const { return position.y + height / 2.0f; }
 float Rocket::getBottom() const { return position.y - height / 2.0f; }
+
+void Rocket::startLaunch(float height) {
+    if (!launching) {
+        launching = true;
+        launchTargetY = position.y + height;
+    }
+}
+
+void Rocket::update(float dt) {
+    if (!launching) return;
+
+    position.y += launchSpeed * dt;
+
+    if (position.y >= launchTargetY) {
+        position.y = launchTargetY;
+        launching = false;
+    }
+}

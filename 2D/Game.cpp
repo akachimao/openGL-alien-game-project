@@ -5,7 +5,7 @@
 
 
 Game::Game()
-    : player(glm::vec3(0.0f, 0.3f, 0.0f)),
+    : player(glm::vec3(0.0f, 0.3f, 0.0f),0.1f),
     cameraPos(0.0f, 0.0f, 0.0f),
     cameraSmooth(0.1f) {
     initWindow();
@@ -51,7 +51,7 @@ void Game::initWindow() {
     glfwSetWindowUserPointer(window, this);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
-    // Enable vsync for consistent frame timing
+    // enable vsync for consistent frame timing
     glfwSwapInterval(1);
 }
 
@@ -75,9 +75,10 @@ void Game::initOpenGL() {
         exit(-1);
     }
     Spike::initMesh();
-	Rocket::initMesh();
 
-    // Cache uniform locations during initialization
+	
+
+    // cache uniform locations during initialization
     transformLoc = glGetUniformLocation(programID, "transform");
     colorLoc = glGetUniformLocation(programID, "color");
 
@@ -90,6 +91,7 @@ void Game::initOpenGL() {
 }
 
 void Game::initGeometry() {
+	// we use the same square geometry for all objects , except spikes and rockets
     GLfloat vertices[] = {
         0.5f,  0.5f, 0.0f,	// top right
         0.5f, -0.5f, 0.0f,	// bottom right
@@ -116,7 +118,7 @@ void Game::initGeometry() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // Unbind VAO to avoid accidental modifications
+    // unbind VAO to avoid accidental modifications
     glBindVertexArray(0);
 }
 
@@ -164,7 +166,8 @@ void Game::createEnemies() {
 
 void Game::createRockets() {
     rockets.reserve(1);
-    rockets.push_back(Rocket(glm::vec3(8.0f, 0.0f-3*player.size/2, 0.0f), 0.18f, 0.45f, glm::vec4(0.9f,0.2f,0.2f,1.0f)));
+    rockets.push_back(Rocket(glm::vec3(8.0f, -0.2f, 0.0f), 0.18f, 0.45f, glm::vec4(0.9f,0.2f,0.2f,1.0f)));
+    rockets[0].initMesh();
 }
 
 void Game::checkCollisions() {
@@ -194,10 +197,10 @@ void Game::checkCollisions() {
             
             const float minDownVelocity = -0.05f; 
 
-           /* bool wasAbove = prevPlayerBottom >= platform.getTop();*/
+          
             bool isFallingEnough = player.velocity.y <= minDownVelocity;
 
-            if (/*wasAbove ||*/ isFallingEnough) {
+            if ( isFallingEnough) {
                 // land on top
                 player.position.y = platform.getTop() + player.size / 2.0f;
                 player.velocity.y = 0.0f;
@@ -219,12 +222,13 @@ void Game::checkCollisions() {
 
     // spikes collision 
     for (const Spike& spike : spikes) {
-        bool horizontalOverlap = player.getRight() > spike.getLeft() &&
+		//check for AABB overlap
+        bool xOverlap = player.getRight() > spike.getLeft() &&
             player.getLeft() < spike.getRight();
-        bool verticalOverlap = player.getBottom() <= spike.getTop() &&
+        bool yOverlap = player.getBottom() <= spike.getTop() &&
             player.getTop() >= spike.getBottom();
 
-        if (horizontalOverlap && verticalOverlap) {
+        if (xOverlap && yOverlap) {
 			//lose condition
             player.velocity = glm::vec3(0.0f);
             player.speed = 0.0f;
@@ -236,12 +240,13 @@ void Game::checkCollisions() {
 
     // enemies collision 
     for (const Enemy& enemy : enemies) {
-        bool horizontalOverlap = player.getRight() > enemy.getLeft() &&
+		//check for AABB overlap
+        bool xOverlap = player.getRight() > enemy.getLeft() &&
             player.getLeft() < enemy.getRight();
-        bool verticalOverlap = player.getBottom() <= enemy.getTop() &&
+        bool yOverlap = player.getBottom() <= enemy.getTop() &&
             player.getTop() >= enemy.getBottom();
 
-        if (horizontalOverlap && verticalOverlap) {
+        if (xOverlap && yOverlap) {
 			//lose condition
             player.velocity = glm::vec3(0.0f);
             player.speed = 0.0f;
@@ -252,18 +257,23 @@ void Game::checkCollisions() {
     }
 
     // rockets collision 
-    for (const Rocket& rocket : rockets) {
-        bool horizontalOverlap = player.getRight() > rocket.getLeft() &&
+    for (Rocket& rocket : rockets) {
+		//check for AABB overlap
+        bool xOverlap = player.getRight() > rocket.getLeft() &&
             player.getLeft() < rocket.getRight();
-        bool verticalOverlap = player.getBottom() <= rocket.getTop() &&
+        bool yOverlap = player.getBottom() <= rocket.getTop() &&
             player.getTop() >= rocket.getBottom();
 
-        if (horizontalOverlap && verticalOverlap) {
-            // win condition
+        if (xOverlap && yOverlap) {
+            // win condition: tint player blue and stop
             player.velocity = glm::vec3(0.0f);
             player.speed = 0.0f;
             player.jumpForce = 0.0f;
             player.color = glm::vec4(0.2f, 0.4f, 1.0f, 1.0f);
+			player.size = 0.0001f; // make player nearly invisible
+            // start the rocket launch animation: go up 10.0f world units
+            rocket.startLaunch(10.0f);
+
             break;
         }
     }
@@ -332,14 +342,15 @@ void Game::run() {
 
         accumulator += delta;
 
-
         while (accumulator >= targetFrameTime) {
-            /*prevPlayerBottom = player.getBottom();*/
             player.handleInput(window);
             player.update();
 
             for (Enemy& enemy : enemies)
                 enemy.update(platforms, spikes);
+
+            for (Rocket& rocket : rockets)
+                rocket.update(static_cast<float>(targetFrameTime));
 
             checkCollisions();
             updateCamera();
@@ -354,17 +365,14 @@ void Game::run() {
     }
 }
 
-
 void Game::cleanup() {
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &ibo);
     glDeleteVertexArrays(1, &vao);
     glDeleteProgram(programID);
 
-
     Spike::cleanupMesh();
-    Rocket::cleanupMesh();
+	rockets[0].cleanupMesh();
 
-    
     glfwTerminate();
 }
