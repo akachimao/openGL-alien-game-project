@@ -122,7 +122,7 @@ void Enemy::draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) const {
     glm::vec4 whiteEye = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);     // White for eye
     glm::vec4 blackPupil = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);   // Black pupil
 
-    // === SLIME BODY (main green square) ===
+    // the main green square 
     glm::mat4 body = glm::mat4(1.0f);
     body = glm::translate(body, position);
     body = glm::scale(body, glm::vec3(size, size, 1.0f));
@@ -131,7 +131,7 @@ void Enemy::draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) const {
     glUniform4fv(colorLoc, 1, glm::value_ptr(greenSlime));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    // === EYE WHITE (large white circle-ish square) ===
+    // white part of the eye
     glm::mat4 eyeWhite = glm::mat4(1.0f);
     eyeWhite = glm::translate(eyeWhite, position + glm::vec3(0.0f, size * 0.1f, 0.0f));
     eyeWhite = glm::scale(eyeWhite, glm::vec3(size * 0.5f, size * 0.5f, 1.0f));
@@ -140,7 +140,7 @@ void Enemy::draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) const {
     glUniform4fv(colorLoc, 1, glm::value_ptr(whiteEye));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    // === PUPIL (black dot in center of eye) ===
+    // the black part of the eye
     glm::mat4 pupil = glm::mat4(1.0f);
     pupil = glm::translate(pupil, position + glm::vec3(0.0f, size * 0.1f, 0.0f));
     pupil = glm::scale(pupil, glm::vec3(size * 0.2f, size * 0.2f, 1.0f));
