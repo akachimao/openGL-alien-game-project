@@ -1,4 +1,4 @@
-#pragma once
+
 #pragma once
 #include "dependente\glew\glew.h"
 #include "dependente\glm\glm.hpp"
