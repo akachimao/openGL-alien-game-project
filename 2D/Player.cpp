@@ -8,19 +8,19 @@ Player::Player(glm::vec3 pos, float sz)
     jumpForce(0.04f),
     gravity(-0.001f),
     isGrounded(false),
-    color(0.7f, 0.7f, 0.7f, 1.0f)  // Light gray for astronaut
+    color(0.7f, 0.7f, 0.7f, 1.0f)
 {
 }
 
 void Player::handleInput(GLFWwindow* window) {
-    // Horizontal movement
+    // horizontal movement
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         position.x -= speed;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         position.x += speed;
     }
-    // Jump
+    // jump
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && isGrounded) {
         velocity.y = jumpForce;
         isGrounded = false;
@@ -36,7 +36,7 @@ void Player::draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) {
     glm::vec4 lightGray = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);  // Astronaut body color
     glm::vec4 blackVisor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);  // Visor color
 
-    // If player died (collision), use the death color for entire astronaut
+    // if the player dies from collision we use the death color for entire astronaut
     if (color.r > 0.9f && color.g < 0.3f) {  // Red (death)
         lightGray = color;
         blackVisor = color;
@@ -46,8 +46,8 @@ void Player::draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) {
         blackVisor = color;
     }
 
-    // === LEGS ===
-    // Left leg
+    
+    // left leg
     glm::mat4 leftLeg = glm::mat4(1.0f);
     leftLeg = glm::translate(leftLeg, position + glm::vec3(-size * 0.15f, -size * 0.6f, 0.0f));
     leftLeg = glm::scale(leftLeg, glm::vec3(size * 0.25f, size * 0.4f, 1.0f));
@@ -56,7 +56,7 @@ void Player::draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) {
     glUniform4fv(colorLoc, 1, glm::value_ptr(lightGray));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    // Right leg
+    // right leg
     glm::mat4 rightLeg = glm::mat4(1.0f);
     rightLeg = glm::translate(rightLeg, position + glm::vec3(size * 0.15f, -size * 0.6f, 0.0f));
     rightLeg = glm::scale(rightLeg, glm::vec3(size * 0.25f, size * 0.4f, 1.0f));
@@ -65,7 +65,7 @@ void Player::draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) {
     glUniform4fv(colorLoc, 1, glm::value_ptr(lightGray));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    // === TORSO (main body) ===
+    //body
     glm::mat4 torso = glm::mat4(1.0f);
     torso = glm::translate(torso, position + glm::vec3(0.0f, -size * 0.1f, 0.0f));
     torso = glm::scale(torso, glm::vec3(size * 0.6f, size * 0.7f, 1.0f));
@@ -74,8 +74,8 @@ void Player::draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) {
     glUniform4fv(colorLoc, 1, glm::value_ptr(lightGray));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    // === ARMS ===
-    // Left arm
+   
+    // left arm
     glm::mat4 leftArm = glm::mat4(1.0f);
     leftArm = glm::translate(leftArm, position + glm::vec3(-size * 0.4f, -size * 0.05f, 0.0f));
     leftArm = glm::scale(leftArm, glm::vec3(size * 0.2f, size * 0.5f, 1.0f));
@@ -84,7 +84,7 @@ void Player::draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) {
     glUniform4fv(colorLoc, 1, glm::value_ptr(lightGray));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    // Right arm
+    // right arm
     glm::mat4 rightArm = glm::mat4(1.0f);
     rightArm = glm::translate(rightArm, position + glm::vec3(size * 0.4f, -size * 0.05f, 0.0f));
     rightArm = glm::scale(rightArm, glm::vec3(size * 0.2f, size * 0.5f, 1.0f));
@@ -93,7 +93,7 @@ void Player::draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) {
     glUniform4fv(colorLoc, 1, glm::value_ptr(lightGray));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    // === HEAD ===
+    // head
     glm::mat4 head = glm::mat4(1.0f);
     head = glm::translate(head, position + glm::vec3(0.0f, size * 0.4f, 0.0f));
     head = glm::scale(head, glm::vec3(size * 0.45f, size * 0.45f, 1.0f));
@@ -102,7 +102,7 @@ void Player::draw(GLuint transformLoc, GLuint colorLoc, glm::mat4 view) {
     glUniform4fv(colorLoc, 1, glm::value_ptr(lightGray));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    // === VISOR (black square on head) ===
+    // visor
     glm::mat4 visor = glm::mat4(1.0f);
     visor = glm::translate(visor, position + glm::vec3(0.0f, size * 0.4f, 0.0f));
     visor = glm::scale(visor, glm::vec3(size * 0.35f, size * 0.2f, 1.0f));
