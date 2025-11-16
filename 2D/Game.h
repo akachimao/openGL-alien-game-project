@@ -7,7 +7,7 @@
 #include "Player.h"
 #include "Platform.h"
 #include "Spike.h"
-#include "Enemy.h" // Include Enemy header
+#include "Enemy.h" 
 #include "Rocket.h"
 
 class Game {
@@ -18,17 +18,17 @@ private:
     GLuint programID;
     GLuint vao, vbo, ibo;
 
-    GLint transformLoc, colorLoc;  // Cache uniform locations
+    GLint transformLoc, colorLoc;  
 
     Player player;
     std::vector<Platform> platforms;
     std::vector<Spike> spikes;     // added spikes
-    std::vector<Enemy> enemies;   // Vector to hold enemies
-    std::vector<Rocket> rockets;  // Vector to hold rockets
+    std::vector<Enemy> enemies;   // vector to hold enemies
+    std::vector<Rocket> rockets;  // vector to hold rockets
     glm::vec3 cameraPos;
     float cameraSmooth;
 
-    // Track player's previous bottom Y so collisions can use previous state
+    // track player's previous bottom y so collisions can use previous state
     /*float prevPlayerBottom = 0.0f;*/
 
     void initWindow();
